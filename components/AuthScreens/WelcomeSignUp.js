@@ -33,7 +33,7 @@ class WelcomeSignUp extends Component<Props> {
     }
     render() {
       return (
-          <LinearGradient colors={['#73BB47', '#407C1B']} style={styles.container}>
+          <LinearGradient colors={['#1bc47d', '#407C1B']} style={styles.container}>
             <Image
               source={require("../../assets/images/check.png")}
               resizeMode="contain"

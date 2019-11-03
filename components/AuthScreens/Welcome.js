@@ -7,9 +7,13 @@ import {
   Dimensions,
   StatusBar,
   View,
-  TouchableOpacity
+  TouchableOpacity,
+  BackHandler,
+  ScrollView
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
+import Button from '../Includes/Button'
+import ButtonOutline from '../Includes/ButtonOutline'
 //import LoaderModal from './Modals/LoaderModal';
 //var SharedPreferences = require("react-native-shared-preferences");
 type Props = {};
@@ -39,68 +43,36 @@ class Welcome extends Component<Props> {
     this.props.navigation.navigate('SignUp')
   }
   render() {
-      let signIn, signUp = '';
-      if(this.state.signIn){
-          signIn = 
-          <TouchableOpacity 
-          onPressIn={()=> this.setState({signIn: true, signUp: false})}
-          onPress={this.signIn.bind(this)}>
-          <LinearGradient colors={['#8DDC5E', '#316A0E']} style={styles.buttonSelected}>
-          <Text style={styles.buttonSelectedText}>Sign In</Text>
-          </LinearGradient></TouchableOpacity>
-          signUp = 
-          <TouchableOpacity 
-          onPressIn={()=> this.setState({signIn: false, signUp: true})}
-          onPress={this.signUp.bind(this)}>
-          <View style={styles.buttonUnselected}>
-            <Text style={styles.buttonUnselectedText}>Sign Up</Text>
-          </View></TouchableOpacity>
-      }else if(this.state.signUp){
-        signUp = 
-        <TouchableOpacity 
-        onPressIn={()=> this.setState({signIn: false, signUp: true})}
-        onPress={this.signUp.bind(this)}>
-        <LinearGradient colors={['#8DDC5E', '#316A0E']} style={styles.buttonSelected}>
-        <Text style={styles.buttonSelectedText}>Sign Up</Text>
-        </LinearGradient></TouchableOpacity>
-        signIn = 
-        <TouchableOpacity 
-        onPressIn={()=> this.setState({signIn: true, signUp: false})}
-        onPress={this.signIn.bind(this)}>
-        <View style={styles.buttonUnselected}>
-          <Text style={styles.buttonUnselectedText}>Sign In</Text>
-        </View></TouchableOpacity>
-      }else{
-        signIn = 
-        <TouchableOpacity 
-        onPressIn={()=> this.setState({signIn: true, signUp: false})}
-        onPress={this.signIn.bind(this)}>
-        <View style={styles.buttonUnselected}>
-          <Text style={styles.buttonUnselectedText}>Sign In</Text>
-        </View></TouchableOpacity>
-        signUp = 
-        <TouchableOpacity 
-        onPressIn={()=> this.setState({signIn: false, signUp: true})}
-        onPress={this.signUp.bind(this)}>
-        <View style={styles.buttonUnselected}>
-        <Text style={styles.buttonUnselectedText}>Sign Up</Text>
-      </View></TouchableOpacity>
-      }
     return (
         <View style={styles.container}>
+        <View style={styles.nine_moveView}>
+        <Image
+            source={require("../../assets/images/ninemove.png")}
+            resizeMode="contain"
+            style={{width: 167, height: 46}}
+          />
+          <Text style={styles.easeText}>Ride with Ease</Text>
+        </View>
           <Image
-            source={require("../../assets/images/greenLogo.png")}
+            source={require("../../assets/images/illustration.png")}
             resizeMode="contain"
             style={styles.logo}
           />
-          {signUp}
-          {signIn}
-          <View style={styles.bottomCity}>
-           <Image
-            source={require("../../assets/images/welcomeBottom.png")}
-            resizeMode="cover"
-            style={styles.bottomCityImage}
-          /></View>
+          <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={this.signIn.bind(this)}
+          activeOpacity={0.7}>
+            <View style={styles.button}>
+            <Text style={styles.buttonText}>Sign In</Text>
+            </View>
+            </TouchableOpacity>
+           <TouchableOpacity onPress={this.signUp.bind(this)}
+           activeOpacity={0.7}>
+            <View style={styles.buttonOutline}>
+            <Text style={styles.buttonOutlineText}>
+            Sign Up
+            </Text>
+            </View>
+            </TouchableOpacity></View>
         </View>
     );
   }
@@ -108,58 +80,68 @@ class Welcome extends Component<Props> {
 /*const Splash = connect(
   mapStateToProps,
 )(reduxSplash);*/
+const dimensions = Dimensions.get("window");
+const Width = dimensions.width;
+const Height = dimensions.height;
 export default Welcome;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: "column",
         alignItems: "center",
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        justifyContent: 'space-around'
       },
      logo: {
-         width: 261,
-         height: 237,
+         width: Width*(97/100),
+         height: Height*(32.8/100),
          alignSelf: 'center',
-         marginBottom: 24,
-         marginTop:'14.40%'
+ //        marginTop:'50%'
      },
-     bottomCity: {
-         bottom: 0,
-         position: 'absolute',
-         width: '100%',
-         height: 82
+     nine_moveView: {
+        flexDirection: 'column',
+        alignItems: 'center'
      },
-     bottomCityImage: {
-        width: '100%',
-        height: 82
-    }, 
-     buttonSelected: {
-         borderRadius: 20,
-         height: 37,
-         width: 180,
-         alignItems: 'center',
-         alignSelf: 'center',
-         justifyContent: 'center',
-         marginTop: 10
+     easeText: {
+         fontFamily: 'mont-semi',
+         fontSize: 12,
+         color: '#000'
      },
-     buttonUnselected: {
-        borderRadius: 20,
-        height: 37,
-        width: 180,
-        alignItems: 'center',
+     button: {
+      width: 219,
+      height: 45,
+      alignSelf: 'center',
+      alignItems: 'center',
+      backgroundColor: '#1bc47d',
+      justifyContent: 'center',
+      borderRadius: 20,
+      marginBottom: 10
+      },
+      buttonText: {
+      fontFamily: 'mont-bold',
+      fontSize: 14,
+      color: '#fff'    
+      },
+      buttonOutline: {
+        width: 219,
+        height: 45,
         alignSelf: 'center',
-        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: '#fff',
-        marginTop: 10
-     } ,
-     buttonSelectedText: {
-         color: 'white',
-         fontFamily: 'mont-bold',
-         fontSize: 13
-     },
-     buttonUnselectedText: {
-         color: '#000',
-         fontFamily: 'mont-bold',
-         fontSize: 13
-     } 
+        justifyContent: 'center',
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#1bc47d',
+        marginBottom: 50
+        },
+        buttonOutlineText: {
+        fontFamily: 'mont-bold',
+        fontSize: 14,
+        color: '#1bc47d'    
+        },
+        buttonContainer: {
+          height: 102,
+          flexDirection: 'column',
+          justifyContent: 'space-between'
+        }
 });

@@ -31,7 +31,7 @@ class Splash extends Component<Props> {
   }
   render() {
     return (
-        <LinearGradient colors={['#73BB47', '#407C1B']} style={styles.container}>
+        <View style={styles.container}>
           <Image
             source={require("../assets/images/whiteLogo.png")}
             resizeMode="contain"
@@ -43,7 +43,7 @@ class Splash extends Component<Props> {
             resizeMode="cover"
             style={styles.bottomCityImage}
           /></View>
-        </LinearGradient>
+        </View>
     );
   }
 }
@@ -56,7 +56,8 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
+        backgroundColor: '#1bc47d'
       },
      logo: {
          width: 277,

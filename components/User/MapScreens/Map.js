@@ -18,7 +18,9 @@ import {
   Platform,
   PermissionsAndroid,
   Alert,
-  TouchableOpacity
+  TouchableOpacity,
+  BackHandler,
+  DeviceEventEmitter
 } from "react-native";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import MapView, { Marker, Callout, AnimatedRegion, Animated } from 'react-native-maps';
@@ -26,6 +28,8 @@ import MapViewDirections from 'react-native-maps-directions';
 import Geocoder from 'react-native-geocoding';
 import Polyline from '@mapbox/polyline';
 import Geolocation from '@react-native-community/geolocation';
+import AddDestination from './AddDestination'
+import LocationServicesDialogBox from "react-native-android-location-services-dialog-box";
 const google_api_key = 'AIzaSyBRWIXQCbRpusFNiQitxMJy_89gguGk66w';
 import LinearGradient from 'react-native-linear-gradient';
 Geocoder.init(google_api_key); 
@@ -72,7 +76,7 @@ class Map extends Component {
       cordLongitude: null,
       y: '',
       z: '',
-      from: '',
+      from: 'Loading Address',
       to: '',
       region: default_region,
       start_location: null, 
@@ -92,7 +96,8 @@ class Map extends Component {
        start_location: null,
        end_location: null,
        email: null,
-       startTrek: false
+       startTrek: false,
+       addressLoader: false
     };
     this.mergeLot = this.mergeLot.bind(this);
     this.getDirectionsTo = this.getDirectionsTo.bind(this);
@@ -101,6 +106,7 @@ class Map extends Component {
   componentWillUnmount() {
     clearInterval(this.intervalId);
     Geolocation.clearWatch(this.watchID);
+    LocationServicesDialogBox.stopListener();
   }
    regionFrom(lat, lon, accuracy) {
     const oneDegreeOfLongitudeInMeters = 111.32 * 1000;
@@ -192,172 +198,121 @@ class Map extends Component {
       this.setState({ error: false });
     }
   };
-  async requestGeolocationPermission() {
+requestGeolocationPermission() {
     try{
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          'title': '9move Geolocation Permission',
-          'message': '9move needs access to your current location'
-        }
-      );
-      if(granted === PermissionsAndroid.RESULTS.GRANTED){
+      this.setState({addressLoader: true})
+        LocationServicesDialogBox.checkLocationServicesIsEnabled({
+          message: "<h2>Allow 9move use your location?</h2>",
+          ok: "YES",
+          cancel: "NO",
+          enableHighAccuracy: true, // true => GPS AND NETWORK PROVIDER, false => GPS OR NETWORK PROVIDER
+          showDialog: true, // false => Opens the Location access page directly
+          openLocationServices: true, // false => Directly catch method is called if location services are turned off
+          preventOutSideTouch: true, //true => To prevent the location services popup from closing when it is clicked outside
+          preventBackClick: true, //true => To prevent the location services popup from closing when it is clicked back button
+          providerListener: true // true ==> Trigger "locationProviderStatusChange" listener when the location state changes
+      }).then(function(success) {
         Geolocation.getCurrentPosition(
-            (position) => {
-              console.log(JSON.stringify(position.coords))
-             /*   var region = this.regionFrom(
-                    position.coords.latitude, 
-                    position.coords.longitude, 
-                    position.coords.accuracy
-                  ); */
-                  console.log("here")
-                  Geocoder.from({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                  })
-                  .then((response) => {
-                    // the response object is the same as what's returned in the HTTP API: https://developers.google.com/maps/documentation/geocoding/intro
-                    console.log(response)
-                 //   this.from_region = region; // for storing the region in case the user presses the "reset" button
-          
-                    // update the state to indicate the user's origin on the map (using a marker)
-                    this.setState({
-                      start_location: {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                      },
-                 //     region: region, // the region displayed on the map
-                      from: response.results[0].formatted_address // the descriptive name of the place
-                    }); 
-          
-                  })
-                  const newCoordinate = {
-                    latitude:  position.coords.latitude,
-                    longitude:  position.coords.longitude,
-                    latitudeDelta: LATITUDE_DELTA,
-                 longitudeDelta: LONGITUDE_DELTA
-                  }
-                  this.setState({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    start_location: {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                      },
-                   currentCoordinate: {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        latitudeDelta: LATITUDE_DELTA,
-                        longitudeDelta: LONGITUDE_DELTA
-                    } 
+          (position) => {
+            console.log(JSON.stringify(position.coords))
+           /*   var region = this.regionFrom(
+                  position.coords.latitude, 
+                  position.coords.longitude, 
+                  position.coords.accuracy
+                ); */
+                this.setState({
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude,
+                  start_location: {
+                      latitude: position.coords.latitude,
+                      longitude: position.coords.longitude,
+                    },
+                 currentCoordinate: {
+                      latitude: position.coords.latitude,
+                      longitude: position.coords.longitude,
+                      latitudeDelta: LATITUDE_DELTA,
+                      longitudeDelta: LONGITUDE_DELTA
                   } 
-                    )
-                    
-              this.mergeLot();
-            },
-            (error) => console.log(error.message),
-            { enableHighAccuracy: true, timeout: 20000,  maximumAge: 1000
-             }, 
-          );
-           
-      }else{
-        console.log("Geolocation permission denied")
-      }
-    }catch(err){
-      console.warn(err)
-    }
-  }
-  async requestGeolocationPermissionSecond() {
-    try{
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          'title': '9move Geolocation Permission',
-          'message': '9move needs access to your current location'
-        }
-      );
-
-      if(granted === PermissionsAndroid.RESULTS.GRANTED){
-        Geolocation.getCurrentPosition(
-            (position) => {
-             /*   var region = this.regionFrom(
-                    position.coords.latitude, 
-                    position.coords.longitude, 
-                    position.coords.accuracy
-                  ); */
-                  const newCoordinate = {
-                    latitude:  position.coords.latitude,
-                    longitude:  position.coords.longitude,
-                    latitudeDelta: LATITUDE_DELTA,
-                 longitudeDelta: LONGITUDE_DELTA
-                  }
+                } )
+                console.log("here")
+                Geocoder.from({
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude
+                })
+                .then((response) => {
+                  // the response object is the same as what's returned in the HTTP API: https://developers.google.com/maps/documentation/geocoding/intro
+                  console.log(response)
+               //   this.from_region = region; // for storing the region in case the user presses the "reset" button
+        
+                  // update the state to indicate the user's origin on the map (using a marker)
                   this.setState({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                   currentCoordinate: {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        latitudeDelta: LATITUDE_DELTA,
-                        longitudeDelta: LONGITUDE_DELTA
-                    } 
-                  })
-                 if (Platform.OS === "android") {
-                    if (this.marker) {
-                        console.log("marker exists")
-                      this.marker._component.animateMarkerToCoordinate(
-                        newCoordinate,
-                        500
-                      );
-                     }
-                   } else {
-                    currentCoordinate.timing(newCoordinate).start();
-                   } 
-             /*     Geocoder.from({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                  })
-                  .then((response) => {
-                    // the response object is the same as what's returned in the HTTP API: https://developers.google.com/maps/documentation/geocoding/intro
-          
-                    this.from_region = region; // for storing the region in case the user presses the "reset" button
-          
-                    // update the state to indicate the user's origin on the map (using a marker)
-                    this.setState({
-                      start_location: {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                      },
-                      region: region, // the region displayed on the map
-                      from: response.results[0].formatted_address // the descriptive name of the place
-                    }); 
-          
-                  });*/
-          
-      /*        this.setState({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-                currentCoordinate: {"latitude": position.coords.latitude, "longitude": position.coords.longitude},
-                error: null,
-                y: {"latitude": position.coords.latitude, "longitude": position.coords.longitude}
-              });*/
-              this.mergeLot();
-            },
-            (error) => console.log(error.message),
-            { enableHighAccuracy: true, timeout: 200000, 
-       //       maximumAge: 1000 
-            },
-          );
-        //   timer = setInterval(this.getLocation,3000);
-      }else{
-        console.log("Geolocation permission denied")
-      }
+                    start_location: {
+                      latitude: position.coords.latitude,
+                      longitude: position.coords.longitude
+                    },
+               //     region: region, // the region displayed on the map
+                    from: response.results[0].formatted_address, // the descriptive name of the place
+                    addressLoader: false
+                  }); 
+        
+                })
+                const newCoordinate = {
+                  latitude:  position.coords.latitude,
+                  longitude:  position.coords.longitude,
+                  latitudeDelta: LATITUDE_DELTA,
+                  longitudeDelta: LONGITUDE_DELTA
+                  }
+                this.setState({
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude,
+                  start_location: {
+                      latitude: position.coords.latitude,
+                      longitude: position.coords.longitude,
+                    },
+                 currentCoordinate: {
+                      latitude: position.coords.latitude,
+                      longitude: position.coords.longitude,
+                      latitudeDelta: LATITUDE_DELTA,
+                      longitudeDelta: LONGITUDE_DELTA
+                  } 
+                } 
+                  )
+                  
+            this.mergeLot();
+          },
+          (error) => console.log(error.message),
+          { enableHighAccuracy: true, 
+            //  maximumAge: 1000
+           }, 
+        );
+          }.bind(this)).catch((error) => {
+          console.log(error.message);
+      });
+
     }catch(err){
       console.warn(err)
     }
   }
   
-  componentDidMount() {
+  async componentDidMount() {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        'title': '9move Geolocation Permission',
+        'message': '9move needs access to your current location'
+      }
+    );
+    if(granted === PermissionsAndroid.RESULTS.GRANTED){
+    }else{
+     console.log("Geolocation permission denied")
+    }
     this.requestGeolocationPermission();
+    DeviceEventEmitter.addListener('locationProviderStatusChange', function(status) { // only trigger when "providerListener" is enabled
+    console.log(status); //  status => {enabled: false, status: "disabled"} or {enabled: true, status: "enabled"}
+     if(!status.enabled){
+    this.requestGeolocationPermission;
+  }
+  });   
    }
    navigator(){
      if(!this.state.end_location){
@@ -434,12 +389,11 @@ class Map extends Component {
         left: 0,
         right: 0,
         bottom: 0,
-  //      marginBottom: this.state.marginBottom
+        marginBottom: 190
         }} 
-    //    followsUserLocation={this.state.startTrek}
-     //   showsUserLocation={this.state.startTrek}
-    //    showsMyLocationButton={true}
-   //     onMapReady={this._onMapReady}
+        followsUserLocation={true}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
           region={{
             latitude: this.state.latitude?this.state.latitude:default_region.latitude,
         longitude: this.state.longitude?this.state.longitude:default_region.longitude,
@@ -448,10 +402,9 @@ class Map extends Component {
           }}
           zoomEnabled={true}
           zoomControlEnabled={true}
-     //      customMapStyle={mapStyle}
-      //     followUserLocation
-   //       loadingEnabled
- //  showsUserLocation={true}
+            //      customMapStyle={mapStyle}
+              //     followUserLocation
+          //       loadingEnabled
            >
       {/*     {!!this.state.latitude && !!this.state.longitude && <MapView.Marker
               coordinate={{"latitude":this.state.latitude,"longitude":this.state.longitude}}
@@ -459,10 +412,12 @@ class Map extends Component {
               pinColor="#39ffb3"
             />*/}
      
-            {
+            {/*
             this.state.start_location &&
             <Marker coordinate={this.state.start_location}
      //        image={require('../assets/images/person-walking.png')}
+             draggable
+            onDragEnd={(e) =>  this.setState({start_location: e.nativeEvent.coordinate})}
              >
              <View style={styles.addressBox}>
              <View style={styles.stick} />
@@ -478,7 +433,7 @@ class Map extends Component {
                      <Text style={styles.yourLocation}>YOUR LOCATION</Text>
                      <Text
                      numberOfLines={2}
-                      style={styles.addressText}>{this.state.from}</Text>
+                      style={styles.addressText}>{this.state.addressLoader?"Loading..." :this.state.from}</Text>
                      </View>
                  </View>
                  <View style={styles.startCircleBig}>
@@ -487,7 +442,7 @@ class Map extends Component {
              </View>
                
              </Marker>
-          }
+          */}
             { this.state.end_location &&
             <Marker
               coordinate={this.state.end_location}
@@ -525,11 +480,17 @@ class Map extends Component {
             />
           }
 
-           </MapView>
-           {/* <FindTrekkerBox  start={this.state.from?this.state.from:"Your current Location"} 
-                 endLocation={this.getEndLocation} start_location={this.state.start_location}
-                 navigation={this.props.navigation}
-                 /> */}
+           </MapView> 
+
+           <View style={styles.profileView}>
+           <Image 
+                  resizeMode={'contain'}
+                  style={styles.profileImage}
+                  source={require('../../../assets/images/user.png')}
+              /></View>
+                        <AddDestination 
+                from={this.state.from}
+              />
            </View>
     );
   }
@@ -537,7 +498,24 @@ class Map extends Component {
 export default Map;
 const styles = StyleSheet.create({
     map: {
-        
+         
+      },
+      profileImage:{
+        height: 60,
+        width: 60
+      },
+      profileView: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        borderWidth: 2,
+        borderColor: '#1bc47d',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#556080',
+        position: 'absolute',
+        left: 22,
+        top: 22
       },
       container: {
           flex: 1

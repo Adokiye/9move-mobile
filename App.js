@@ -21,9 +21,15 @@ import Welcome from "./components/AuthScreens/Welcome";
 import SignIn from "./components/AuthScreens/SignIn"
 import SignUp from "./components/AuthScreens/SignUp"
 import Verify from "./components/AuthScreens/Verify"
-import Map from "./components/Map"
+import ForgotPassword from "./components/AuthScreens/ForgotPassword"
 import WelcomeSignIn from "./components/AuthScreens/WelcomeSignIn"
 import WelcomeSignUp from "./components/AuthScreens/WelcomeSignUp"
+import Map from "./components/User/MapScreens/Map"
+import DriverMap from "./components/Driver/MapScreens/DriverMap"
+import BVN from "./components/Driver/AuthScreens/BVN"
+import CarDetails from "./components/Driver/AuthScreens/CarDetails"
+import DriverLicense from "./components/Driver/AuthScreens/DriverLicense"
+import PersonalDocument from "./components/Driver/AuthScreens/PersonalDocument"
 import { createStackNavigator } from "react-navigation";
 type Props = {};
 const RootStack = createStackNavigator({
@@ -32,6 +38,21 @@ const RootStack = createStackNavigator({
   },
   SignIn: {
     screen: SignIn
+ },
+ BVN: {
+   screen: BVN
+ },
+ CarDetails: {
+   screen: CarDetails
+ },
+ DriverLicense: {
+screen: DriverLicense
+ },
+ PersonalDocument: {
+   screen: PersonalDocument
+ },
+ DriverMap: {
+    screen: DriverMap
  },
   SignUp: {
     screen: SignUp
@@ -44,6 +65,9 @@ const RootStack = createStackNavigator({
   },
   WelcomeSignUp: {
     screen: WelcomeSignUp
+  },
+  ForgotPassword:{
+     screen: ForgotPassword
   },
   Map: {
     screen: Map

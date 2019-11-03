@@ -13,8 +13,7 @@ import {
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import HideWithKeyboard from "react-native-hide-with-keyboard";
-import DriverSignUp from '../Driver/AuthScreens/DriverSignUp'
-import UserSignUp from '../User/AuthScreens/UserSignUp'
+import Button from '../../Includes/Button'
 //import LoaderModal from './Modals/LoaderModal';
 //var SharedPreferences = require("react-native-shared-preferences");
 type Props = {};
@@ -22,7 +21,7 @@ type Props = {};
 /*const mapStateToProps = state => ({
   ...state
 });*/
-class SignUp extends Component<Props> {
+class BVN extends Component<Props> {
   static navigationOptions = {
     header: null,
     drawerLockMode: "locked-closed"
@@ -44,50 +43,60 @@ class SignUp extends Component<Props> {
   componentDidMount(){
   }
   render() {
-    let signUpView = ''
-    if(this.state.passenger){
-      signUpView = (
-      <UserSignUp navigation={this.props.navigation}/>
-      );
-    }else{
-      signUpView = (
-        <DriverSignUp navigation={this.props.navigation}/>
-        );
-    }
     return (
         <View style={styles.container}>
         <View style={styles.header}>
         <View style={styles.headerSmall}>
               <TouchableOpacity onPress={()=> this.props.navigation.goBack()}>
               <Image 
-                  source={require('../../assets/images/back.png')}
+                  source={require('../../../assets/images/back.png')}
                   resizeMode={'contain'}
                   style={{height: 20, width: 20}}
               /></TouchableOpacity>
-              <Text style={styles.signUpText}>Sign Up</Text>
-              <TouchableOpacity onPress={()=> this.props.navigation.navigate('SignIn')}>
-              <Text style={styles.headerSignIn}>Sign In</Text></TouchableOpacity>
-              </View>
-              <View style={styles.tabs}>
-              <TouchableOpacity onPress={()=> this.setState({passenger: true, driver: false})}>
-               <View style={styles.tabBox}>
-                  <Text style={this.state.passenger?styles.tabOnlineText
-                  :styles.tabOfflineText}>PASSENGER</Text>
-               </View></TouchableOpacity>
-               <TouchableOpacity onPress={()=> this.setState({passenger: false, driver: true})}>
-               <View style={styles.tabBox}>
-                  <Text style={this.state.passenger?styles.tabOfflineText:
-                  styles.tabOnlineText}>DRIVER</Text>
-               </View>
-               </TouchableOpacity>
+              <Text style={styles.signUpText}>Enter Bvn</Text>
+              <TouchableOpacity onPress={()=> this.props.navigation.goBack()}>
+              <Image 
+                  source={require('../../../assets/images/back.png')}
+                  resizeMode={'contain'}
+                  style={{height: 20, width: 20, opacity: 0}}
+              /></TouchableOpacity>
               </View>
               <View style={styles.tabBeneath}>
-               <View style={this.state.passenger?styles.tabOnline:styles.tabOffline}></View>
-               <View style={this.state.passenger?styles.tabOffline:styles.tabOnline}></View>
+               <View style={styles.tabOnline}></View>
                </View>
           </View>
           <ScrollView>
-          {signUpView}
+          <View style={styles.byView}>
+          <Text style={styles.byText}>
+          Content to explain why 9move is in use, lorem, lorem
+          </Text>
+          </View>
+          <View style={!this.state.bvn_text_input?styles.textFieldView:
+          styles.focusedTextFieldView}>
+          <TextInput
+              underlineColorAndroid={"transparent"}
+              allowFontScaling={false}
+              placeholder="Enter Bvn"
+              returnKeyType={'next'}
+              keyboardType={'numeric'}
+              ref={ (input) => {this.addressTextInput = input }}
+              blurOnSubmit={false}
+              onFocus={()=> this.setState({bvn_text_input: true})}
+              onBlur={()=> this.setState({bvn_text_input: false})}
+              onSubmitEditing={()=> this.props.navigation.navigate('CarDetails')}
+           //   value={this.state.email}
+            //  onChangeText={interests => this.setState({ email })}
+              placeholderStyle={{ fontSize: 7, fontFamily: "mont-semi" }}
+              placeholderTextColor="#B9B2B2"
+              style={styles.nametextFieldInput}
+            />
+          </View>
+          <Button 
+             action={()=>this.props.navigation.navigate('CarDetails', )}
+              style={{marginTop: 40, marginBottom: 30}}
+              navigation={this.props.navigation}
+              text={'Continue'}
+          />
           </ScrollView>
         </View>
     );
@@ -96,7 +105,7 @@ class SignUp extends Component<Props> {
 /*const Splash = connect(
   mapStateToProps,
 )(reduxSplash);*/
-export default SignUp;
+export default BVN;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -125,7 +134,7 @@ const styles = StyleSheet.create({
      },
      header: {
       width: '100%',
-      height: 100,
+      height: 65,
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingTop: 20,
@@ -133,6 +142,7 @@ const styles = StyleSheet.create({
       alignSelf: 'center',
       backgroundColor: 'white',
       marginBottom:  40,
+      elevation: 2
   },
   headerSmall: {
    width: '85%',
@@ -153,14 +163,14 @@ const styles = StyleSheet.create({
        height: 50,
        flexDirection: 'row',
        alignItems:'center',
-       justifyContent: 'space-evenly',
+       justifyContent: 'space-between',
    },
    tabBox: {
      height: 15,
      flexDirection: 'column',
      width: 116,
      alignItems: 'center',
-     justifyContent: 'space-evenly'
+     justifyContent: 'space-between'
    },
    tabBeneath: {
      flexDirection: 'row',
@@ -169,19 +179,9 @@ const styles = StyleSheet.create({
      position: 'absolute',
      bottom: 0
    },
-   tabOnlineText: {
-     color: '#1bc47d',
-     fontFamily: 'mont-bold',
-     fontSize: 13
-   },
-   tabOfflineText: {
-     color: '#B1ADAD',
-     fontFamily: 'mont-bold',
-     fontSize: 13
-   },
    tabOnline:{
      backgroundColor: '#1bc47d',
-     width: '50%',
+     width: '25%',
      height: 3,
      borderRadius: 9
    },

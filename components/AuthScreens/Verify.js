@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import HideWithKeyboard from "react-native-hide-with-keyboard";
+import Button from "../Includes/Button";
 //import LoaderModal from './Modals/LoaderModal';
 //var SharedPreferences = require("react-native-shared-preferences");
 type Props = {};
@@ -29,10 +30,22 @@ class Verify extends Component<Props> {
     super(props);
     this.state = {
      regLoader: false,
-     eye_of_tiger: true
+     eye_of_tiger: true,
+     firstTextInput: false,
+     secondTextInput: false,
+     thirdTextInput: false,
+     fourthTextInput: false
     };
   }
   componentDidMount(){
+  }
+  navigate(){
+    const {params} = this.props.navigation.state
+    if(params.forgotPassword){
+      this.props.navigation.navigate('WelcomeSignIn')
+    }else{
+      this.props.navigation.navigate('WelcomeSignUp')
+    }
   }
   render() {
     return (
@@ -42,7 +55,7 @@ class Verify extends Component<Props> {
               <Image 
                   source={require('../../assets/images/back.png')}
                   resizeMode={'contain'}
-                  style={{height: 14, width: 14}}
+                  style={{height: 20, width: 20}}
               /></TouchableOpacity>
           </View>
           <ScrollView>
@@ -51,50 +64,111 @@ class Verify extends Component<Props> {
           </View>
           <View style={styles.checkView}>
               <Text style={styles.checkText}>Check your SMS messages, we’ve sent you
-             the PIN at <Text style={styles.numberText}>08011233122 </Text></Text>
+             the PIN at <Text style={styles.numberText}>0801******* </Text></Text>
           </View>
           <View style={styles.pinView}>
-              <View style={styles.pinBox}>
+              <View style={!this.state.firstTextInput?styles.pinBox:styles.focusPinBox}>
               <TextInput
               underlineColorAndroid={"transparent"}
               allowFontScaling={false}
               style={styles.pinTextInput}
               keyboardType={'numeric'}
+              maxLength={1}
+              returnKeyType='next'
+              autoFocus={true}
+              blurOnSubmit={false}
+              onFocus={()=> this.setState({firstTextInput: true})}
+              onBlur={()=> this.setState({firstTextInput: false})}
+              onSubmitEditing={()=> {this.secondTextInput.focus();}}
+              onChangeText={text => {
+              //this.setState({cardExpDateMonth: text})
+              //console.log('onChangeText', this.refs.card_exp_date_mm)
+              if(text && text.length == 1){
+              //this.refs.card_exp_date_aa.focus();
+              this.secondTextInput.focus()
+              }
+              }}
             />
               </View>
-              <View style={styles.pinBox}>
+              <View style={!this.state.secondTextInput?styles.pinBox:styles.focusPinBox}>
               <TextInput
               underlineColorAndroid={"transparent"}
               allowFontScaling={false}
               style={styles.pinTextInput}
               keyboardType={'numeric'}
+              blurOnSubmit={false}
+              onFocus={()=> this.setState({secondTextInput: true})}
+              onBlur={()=> this.setState({secondTextInput: false})}
+              ref={ (input) => {this.secondTextInput = input }}
+              maxLength={1}
+              returnKeyType='next'
+              onSubmitEditing={()=> {this.thirdTextInput.focus();}}
+              onChangeText={text => {
+           //   this.setState({cardExpDateMonth: text})
+              //console.log('onChangeText', this.refs.card_exp_date_mm)
+              if(text && text.length == 1){
+         //       this.refs.card_exp_date_aa.focus();
+              this.thirdTextInput.focus()
+              }
+              }}
             />
               </View>
-              <View style={styles.pinBox}>
+              <View style={!this.state.thirdTextInput?styles.pinBox:styles.focusPinBox}>
               <TextInput
               underlineColorAndroid={"transparent"}
               allowFontScaling={false}
               style={styles.pinTextInput}
               keyboardType={'numeric'}
+              blurOnSubmit={false}
+              onFocus={()=> this.setState({thirdTextInput: true})}
+              onBlur={()=> this.setState({thirdTextInput: false})}
+              ref={ (input) => {this.thirdTextInput = input }}
+              maxLength={1}
+              returnKeyType='next'
+              onSubmitEditing={()=> {this.fourthTextInput.focus();}}
+              onChangeText={text => {
+           //   this.setState({cardExpDateMonth: text})
+              //console.log('onChangeText', this.refs.card_exp_date_mm)
+              if(text && text.length == 1){
+         //       this.refs.card_exp_date_aa.focus();
+              this.fourthTextInput.focus()
+              }
+              }}
             />
               </View>
-              <View style={styles.pinBox}>
+              <View style={!this.state.fourthTextInput?styles.pinBox:styles.focusPinBox}>
               <TextInput
               underlineColorAndroid={"transparent"}
               allowFontScaling={false}
+              maxLength={1}
               style={styles.pinTextInput}
               keyboardType={'numeric'}
+              blurOnSubmit={false}
+              onFocus={()=> this.setState({fourthTextInput: true})}
+              onBlur={()=> this.setState({fourthTextInput: false})}
+              ref={ (input) => {this.fourthTextInput = input }}
+              maxLength={1}
+              onChangeText={text => {
+           //   this.setState({cardExpDateMonth: text})
+              //console.log('onChangeText', this.refs.card_exp_date_mm)
+              if(text && text.length == 1){
+         //       this.refs.card_exp_date_aa.focus();
+              this.props.navigation.navigate('WelcomeSignUp')
+              }
+              }}
             />
               </View>
           </View>
           <View style={styles.checkView}>
           <Text style={styles.checkText}>Didn’t receive SMS?{" "}
-           <Text style={styles.resendText}>Resend pin </Text></Text></View>
-          <TouchableOpacity onPress={()=> this.props.navigation.navigate('WelcomeSignUp')}>
-          <LinearGradient colors={['#8DDC5E', '#316A0E']} style={styles.buttonSelected}>
-              <Text style={styles.buttonSelectedText}>Verify</Text>
-          </LinearGradient>
-          </TouchableOpacity>
+           <Text style={styles.resendText}>Resend pin </Text></Text>
+           </View>
+          <Button 
+             action={this.navigate.bind(this)}
+              style={{marginTop: 23, marginBottom: 30}}
+              navigation={this.props.navigation}
+              text={'Verify'}
+          />
           </ScrollView>
         </View>
     );
@@ -180,6 +254,13 @@ const styles = StyleSheet.create({
          borderRadius: 5,
          borderColor: '#AFA6A6'
      },
+     focusPinBox: {
+      width: '17.5%',
+      height: 45,
+      borderWidth: 1,
+      borderRadius: 5,
+      borderColor: '#44811F'
+  },
      pinTextInput: {
          width: '100%',
          height: 40,

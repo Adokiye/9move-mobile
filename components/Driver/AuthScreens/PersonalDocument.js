@@ -9,12 +9,12 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  TextInput
+  TextInput,
+  Picker
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import HideWithKeyboard from "react-native-hide-with-keyboard";
-import DriverSignUp from '../Driver/AuthScreens/DriverSignUp'
-import UserSignUp from '../User/AuthScreens/UserSignUp'
+import Button from '../../Includes/Button'
 //import LoaderModal from './Modals/LoaderModal';
 //var SharedPreferences = require("react-native-shared-preferences");
 type Props = {};
@@ -22,7 +22,7 @@ type Props = {};
 /*const mapStateToProps = state => ({
   ...state
 });*/
-class SignUp extends Component<Props> {
+class PersonalDocument extends Component<Props> {
   static navigationOptions = {
     header: null,
     drawerLockMode: "locked-closed"
@@ -38,57 +38,55 @@ class SignUp extends Component<Props> {
      first_name_text_input: false,
      email_text_input: false,
      passenger: true,
-     driver: false
+     driver: false,
     };
   }
   componentDidMount(){
   }
   render() {
-    let signUpView = ''
-    if(this.state.passenger){
-      signUpView = (
-      <UserSignUp navigation={this.props.navigation}/>
-      );
-    }else{
-      signUpView = (
-        <DriverSignUp navigation={this.props.navigation}/>
-        );
-    }
     return (
         <View style={styles.container}>
         <View style={styles.header}>
         <View style={styles.headerSmall}>
               <TouchableOpacity onPress={()=> this.props.navigation.goBack()}>
               <Image 
-                  source={require('../../assets/images/back.png')}
+                  source={require('../../../assets/images/back.png')}
                   resizeMode={'contain'}
                   style={{height: 20, width: 20}}
               /></TouchableOpacity>
-              <Text style={styles.signUpText}>Sign Up</Text>
-              <TouchableOpacity onPress={()=> this.props.navigation.navigate('SignIn')}>
-              <Text style={styles.headerSignIn}>Sign In</Text></TouchableOpacity>
-              </View>
-              <View style={styles.tabs}>
-              <TouchableOpacity onPress={()=> this.setState({passenger: true, driver: false})}>
-               <View style={styles.tabBox}>
-                  <Text style={this.state.passenger?styles.tabOnlineText
-                  :styles.tabOfflineText}>PASSENGER</Text>
-               </View></TouchableOpacity>
-               <TouchableOpacity onPress={()=> this.setState({passenger: false, driver: true})}>
-               <View style={styles.tabBox}>
-                  <Text style={this.state.passenger?styles.tabOfflineText:
-                  styles.tabOnlineText}>DRIVER</Text>
-               </View>
-               </TouchableOpacity>
+              <Text style={styles.signUpText}>Personal Document</Text>
+              <TouchableOpacity onPress={()=> this.props.navigation.goBack()}>
+              <Image 
+                  source={require('../../../assets/images/back.png')}
+                  resizeMode={'contain'}
+                  style={{height: 20, width: 20, opacity: 0}}
+              /></TouchableOpacity>
               </View>
               <View style={styles.tabBeneath}>
-               <View style={this.state.passenger?styles.tabOnline:styles.tabOffline}></View>
-               <View style={this.state.passenger?styles.tabOffline:styles.tabOnline}></View>
+               <View style={styles.tabOnline}></View>
                </View>
           </View>
-          <ScrollView>
-          {signUpView}
-          </ScrollView>
+           <TouchableOpacity onPress={()=> this.props.navigation.navigate('DriverLicense')}>
+             <View style={styles.driverLicenseView}>
+             <Text style={styles.driverLicenseText}>Add Driver's License</Text>
+             <View style={{height: 25, width: 25}}>
+             <Image 
+                  source={require('../../../assets/images/greenNext.png')}
+                  resizeMode={'contain'}
+                  style={{flex: 1 }}
+              /></View>
+             </View>
+           </TouchableOpacity>
+           <TouchableOpacity>
+             <View style={styles.driverPictureView}>
+             <Text style={styles.driverPictureText}>Add Photo</Text>
+             <View style={{height: 25, width: 25}}>
+             <Image 
+                  source={require('../../../assets/images/blackNext.png')}
+                  resizeMode={'contain'}
+                  style={{flex: 1 }}
+              /></View>
+             </View></TouchableOpacity>
         </View>
     );
   }
@@ -96,13 +94,17 @@ class SignUp extends Component<Props> {
 /*const Splash = connect(
   mapStateToProps,
 )(reduxSplash);*/
-export default SignUp;
+const dimensions = Dimensions.get("window");
+const Width = dimensions.width;
+const Height = dimensions.height;
+export default PersonalDocument;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: "column",
         alignItems: "center",
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        flexGrow: 1
       },
      bottomCity: {
          width: '100%',
@@ -125,7 +127,7 @@ const styles = StyleSheet.create({
      },
      header: {
       width: '100%',
-      height: 100,
+      height: 65,
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingTop: 20,
@@ -133,6 +135,7 @@ const styles = StyleSheet.create({
       alignSelf: 'center',
       backgroundColor: 'white',
       marginBottom:  40,
+      elevation: 2
   },
   headerSmall: {
    width: '85%',
@@ -153,14 +156,14 @@ const styles = StyleSheet.create({
        height: 50,
        flexDirection: 'row',
        alignItems:'center',
-       justifyContent: 'space-evenly',
+       justifyContent: 'space-between',
    },
    tabBox: {
      height: 15,
      flexDirection: 'column',
      width: 116,
      alignItems: 'center',
-     justifyContent: 'space-evenly'
+     justifyContent: 'space-between'
    },
    tabBeneath: {
      flexDirection: 'row',
@@ -181,7 +184,7 @@ const styles = StyleSheet.create({
    },
    tabOnline:{
      backgroundColor: '#1bc47d',
-     width: '50%',
+     width: '75%',
      height: 3,
      borderRadius: 9
    },
@@ -279,73 +282,6 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center'
   },
-    dialCodeView: {
-        width: '30%',
-        height: 50,
-        borderRadius: 6,
-        borderColor: '#B1ADAD',
-        borderWidth: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    focusedDialCodeView: {
-      width: '30%',
-      height: 50,
-      borderRadius: 6,
-      borderColor: '#44811F',
-      borderWidth: 1,
-      alignItems: 'center',
-      justifyContent: 'center'
-  },
-    dialCodeText: {
-        color: '#000',
-        fontFamily: 'mont-semi',
-        fontSize: 12
-    },
-    passwordView: {
-        width: '85%',
-        height: 50,
-        borderRadius: 6,
-        borderColor: '#B1ADAD',
-        borderWidth: 1,
-         marginBottom: 23,
-        alignSelf: "center",
-        justifyContent: "space-between",
-        flexDirection: "row",
-      },
-      focusedPasswordView: {
-        width: '85%',
-        height: 50,
-        borderRadius: 6,
-        borderColor: '#44811F',
-        borderWidth: 1,
-         marginBottom: 23,
-        alignSelf: "center",
-        justifyContent: "space-between",
-        flexDirection: "row",
-      },
-      passwordTextFieldInput: {
-        height: 45,
-        width: "80%",
-        backgroundColor: "#ffffff",
-        color: '#000',
-        fontSize: 12,
-        fontFamily: "mont-semi",
-        paddingLeft: 15,
-        alignItems: 'center',
-        justifyContent: 'center'
-      },
-      eyeView: {
-        width: "20%",
-        alignItems: "center",
-        justifyContent: "center",
-        height: 45
-      },
-      eyeImage: {
-        width: 12,
-        height: 7,
-        alignSelf: "center"
-      },
       byView: {
           alignSelf: 'center',
           alignItems: 'center', 
@@ -358,23 +294,40 @@ const styles = StyleSheet.create({
           fontSize: 7,
           fontFamily: 'mont-semi'
       },
-      iconView: {
+      driverLicenseView: {
+          width:Width*(80/100),
+          height: 82,
+          flexDirection: 'row',
+          alignSelf: 'center',
+          justifyContent: 'space-between',
+          paddingLeft: 20,
+          paddingRight: 20,
+          backgroundColor: '#C1F2A3',
+          borderRadius: 10,
+          alignItems: 'center'
+      },
+      driverLicenseText: {
+          fontFamily: 'mont-semi',
+          fontSize: 16,
+          color: '#000'
+      },
+      driverPictureView: {
+        width: Width*(80/100),
+        height: 82,
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: 65,
-        height: 24,
-        marginTop: 18,
-        alignSelf: 'center'
-    },
-    iconImage: {
-        width: 23,
-        height: 23
-    },
-    connectText: {
         alignSelf: 'center',
-        fontSize: 8,
-        color: '#000',
+        marginTop: 18,
+        justifyContent: 'space-between',
+        paddingLeft: 20,
+        paddingRight: 20,
+        backgroundColor: '#EBE7E7',
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 20
+    },
+    driverPictureText: {
         fontFamily: 'mont-semi',
-        marginTop: 40
+        fontSize: 16,
+        color: '#000'
     }
 });
